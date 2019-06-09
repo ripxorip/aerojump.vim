@@ -1,72 +1,72 @@
 # ============================================================================
-# FILE: __init__.py
+# FILE: aerojump_vim.py
 # AUTHOR: Philip Karlsson Gisslow <philipkarlsson at me.com>
 # License: MIT license
 # ============================================================================
 
-import neovim
-import os
-import re
-
+import vim
 from aerojump.aerojump import Aerojump, AerojumpSpace, AerojumpBolt
 
-def get_output_of_vim_cmd(nvim, cmd):
+def get_output_of_vim_cmd(vim, cmd):
     """ Utility function to get the current output
         of a vim command
 
     Parameters:
-        nvim: Neovim instance
+        vim: Neovim instance
         cmd: Command to fetch output from
 
     Returns:
         n/a
     """
-    nvim.command('redir @a')
-    nvim.command(cmd)
-    nvim.command('redir END')
-    return nvim.eval('@a').strip('\n')
+    vim.command('redir @a')
+    vim.command(cmd)
+    vim.command('redir END')
+    return vim.eval('@a').strip('\n')
 
-@neovim.plugin
-class AerojumpNeovim(object):
-    def __init__(self, nvim):
-        self.nvim = nvim
+#@neovim.plugin
+class AerojumpVimRuntime(object):
+    def __init__(self, vim):
+        self.vim = vim
         self.logstr = []
         self.logstr.append('== Aerojump debug ==')
         self.has_searched = False
+
+    def hello_world(self):
+        print('Hello world')
 
     def __log(self, s):
         self.logstr.append(str(s))
 
     def __open_aerojump_buf(self):
-        self.nvim.command('split Aerojump')
-        self.nvim.command('setlocal buftype=nofile')
-        self.nvim.command('setlocal filetype=aerojump')
+        self.vim.command('split Aerojump')
+        self.vim.command('setlocal buftype=nofile')
+        self.vim.command('setlocal filetype=aerojump')
         # Fix filetype in order to keep old syntax
-        self.nvim.command('set filetype='+self.ft+'.aerojump')
-        self.aerojump_buf_num = self.nvim.current.buffer.number
+        self.vim.command('set filetype='+self.ft+'.aerojump')
+        self.aerojump_buf_num = self.vim.current.buffer.number
 
     def __open_aerojump_filter_buf(self, filter_string = ''):
-        self.nvim.command('e AerojumpFilter')
-        self.nvim.command('setlocal buftype=nofile')
-        self.nvim.command('setlocal filetype=AerojumpFilter')
+        self.vim.command('e AerojumpFilter')
+        self.vim.command('setlocal buftype=nofile')
+        self.vim.command('setlocal filetype=AerojumpFilter')
         if filter_string != '':
             # TODO Idea: Maybe add some special characters
             # like regexp to enforce whole matches only?
-            self.nvim.current.buffer[0] = filter_string
-        self.filt_buf_num = self.nvim.current.buffer.number
+            self.vim.current.buffer[0] = filter_string
+        self.filt_buf_num = self.vim.current.buffer.number
 
     def __set_cursor_position(self, pos):
-        old_win = self.nvim.current.window
-        self.nvim.current.window = self.main_win
-        self.nvim.current.window.cursor = pos
-        self.nvim.current.window = old_win
+        old_win = self.vim.current.window
+        self.vim.current.window = self.main_win
+        self.vim.current.window.cursor = pos
+        self.vim.current.window = old_win
 
     def __set_top_pos(self, top_pos):
-        old_win = self.nvim.current.window
-        self.nvim.current.window = self.main_win
-        self.nvim.current.window.cursor = top_pos
-        self.nvim.command('normal! zt')
-        self.nvim.current.window = old_win
+        old_win = self.vim.current.window
+        self.vim.current.window = self.main_win
+        self.vim.current.window.cursor = top_pos
+        self.vim.command('normal! zt')
+        self.vim.current.window = old_win
 
     def __create_aerojumper(self, settings, lines, cursor_pos, top_line, num_lines):
         lin_nums = []
@@ -99,19 +99,19 @@ class AerojumpNeovim(object):
             self.__set_cursor_position(self.og_pos)
 
     def __create_keymap(self):
-        self.nvim.command("inoremap <buffer> <C-h> <ESC>:AerojumpSelPrev<CR>")
-        self.nvim.command("inoremap <buffer> <Left> <ESC>:AerojumpSelPrev<CR>")
-        self.nvim.command("inoremap <buffer> <C-j> <ESC>:AerojumpDown<CR>")
-        self.nvim.command("inoremap <buffer> <Down> <ESC>:AerojumpDown<CR>")
-        self.nvim.command("inoremap <buffer> <C-k> <ESC>:AerojumpUp<CR>")
-        self.nvim.command("inoremap <buffer> <Up> <ESC>:AerojumpUp<CR>")
-        self.nvim.command("inoremap <buffer> <C-l> <ESC>:AerojumpSelNext<CR>")
-        self.nvim.command("inoremap <buffer> <Right> <ESC>:AerojumpSelNext<CR>")
-        self.nvim.command("inoremap <buffer> <C-q> <ESC>:AerojumpExit<CR>")
-        self.nvim.command("inoremap <buffer> <ESC> <ESC>:AerojumpSelect<CR>")
-        self.nvim.command("inoremap <buffer> <CR> <ESC>:AerojumpSelect<CR>")
-        self.nvim.command("inoremap <buffer> aj <ESC>:AerojumpSelect<CR>")
-        self.nvim.command("inoremap <buffer> <Space> <ESC>:AerojumpSelect<CR>")
+        self.vim.command("inoremap <buffer> <C-h> <ESC>:AerojumpSelPrev<CR>")
+        self.vim.command("inoremap <buffer> <Left> <ESC>:AerojumpSelPrev<CR>")
+        self.vim.command("inoremap <buffer> <C-j> <ESC>:AerojumpDown<CR>")
+        self.vim.command("inoremap <buffer> <Down> <ESC>:AerojumpDown<CR>")
+        self.vim.command("inoremap <buffer> <C-k> <ESC>:AerojumpUp<CR>")
+        self.vim.command("inoremap <buffer> <Up> <ESC>:AerojumpUp<CR>")
+        self.vim.command("inoremap <buffer> <C-l> <ESC>:AerojumpSelNext<CR>")
+        self.vim.command("inoremap <buffer> <Right> <ESC>:AerojumpSelNext<CR>")
+        self.vim.command("inoremap <buffer> <C-q> <ESC>:AerojumpExit<CR>")
+        self.vim.command("inoremap <buffer> <ESC> <ESC>:AerojumpSelect<CR>")
+        self.vim.command("inoremap <buffer> <CR> <ESC>:AerojumpSelect<CR>")
+        self.vim.command("inoremap <buffer> aj <ESC>:AerojumpSelect<CR>")
+        self.vim.command("inoremap <buffer> <Space> <ESC>:AerojumpSelect<CR>")
 
     def __resume(self):
         # Check if we have jumped or not
@@ -119,10 +119,10 @@ class AerojumpNeovim(object):
             return
 
         # Sample positions
-        window = self.nvim.current.window
+        window = self.vim.current.window
         self.current_pos = window.cursor
         self.og_pos = window.cursor
-        self.nvim.command('normal! H')
+        self.vim.command('normal! H')
         self.top_pos = window.cursor
 
         # Spawn the filter buffer
@@ -131,26 +131,26 @@ class AerojumpNeovim(object):
         self.__open_aerojump_buf()
 
         # Paste the lines of the old buffer to the new
-        new_buf = self.nvim.current.buffer
+        new_buf = self.vim.current.buffer
         new_buf[:] = self.og_buf[:]
 
         # Restore main win
-        self.main_win = self.nvim.current.window
+        self.main_win = self.vim.current.window
 
         # Go back to the input buffer window
-        self.nvim.command('wincmd j')
-        self.nvim.current.window.height = 1
-        self.nvim.command("startinsert!")
+        self.vim.command('wincmd j')
+        self.vim.current.window.height = 1
+        self.vim.command("startinsert!")
 
         # Recreate old state
-        self.nvim.current.buffer[0] = self.filter_string
-        self.nvim.command("normal! $")
+        self.vim.current.buffer[0] = self.filter_string
+        self.vim.command("normal! $")
 
         self.__create_keymap()
 
     # Aerojump Commands
     #====================
-    @neovim.autocmd("TextChangedI", pattern='AerojumpFilter', sync=True)
+    #@neovim.autocmd("TextChangedI", pattern='AerojumpFilter', sync=True)
     def insert_changed(self):
         """ Autocmd for when text changes
 
@@ -160,13 +160,13 @@ class AerojumpNeovim(object):
         Returns:
             n/a
         """
-        if self.filter_string == self.nvim.current.line:
+        if self.filter_string == self.vim.current.line:
             return
-        self.filter_string = self.nvim.current.line
+        self.filter_string = self.vim.current.line
         self.aj.apply_filter(self.filter_string)
         self.__draw()
 
-    @neovim.command("AerojumpResumeNext", range='', nargs='*', sync=True)
+    #@neovim.command("AerojumpResumeNext", range='', nargs='*', sync=True)
     def AerojumpResumeNext(self, args, range):
         """ Resumes aerojump from previous matches selecting the next match
 
@@ -179,7 +179,7 @@ class AerojumpNeovim(object):
         self.__resume()
         self.AerojumpSelNext('','')
 
-    @neovim.command("AerojumpResumePrev", range='', nargs='*', sync=True)
+    #@neovim.command("AerojumpResumePrev", range='', nargs='*', sync=True)
     def AerojumpResumePrev(self, args, range):
         """ Resumes aerojump from previous matches selecting the previous match
 
@@ -192,7 +192,7 @@ class AerojumpNeovim(object):
         self.__resume()
         self.AerojumpSelPrev('','')
 
-    @neovim.command("Aerojump", range='', nargs='*', sync=True)
+    #@neovim.command("Aerojump", range='', nargs='*', sync=True)
     def Aerojump(self, args, range):
         """ Start aerojump in its default (or last?) mode
 
@@ -211,13 +211,13 @@ class AerojumpNeovim(object):
         settings['mode'] = args[1]
 
         if settings['input'] == 'cursor':
-            filter_string = self.nvim.eval('expand(\'<cword>\')').strip('\n')
+            filter_string = self.vim.eval('expand(\'<cword>\')').strip('\n')
 
         self.has_searched = True
         self.has_filter = False
-        self.hl_source = self.nvim.new_highlight_source()
-        self.og_buf = self.nvim.current.buffer
-        window = self.nvim.current.window
+        self.hl_source = self.vim.new_highlight_source()
+        self.og_buf = self.vim.current.buffer
+        window = self.vim.current.window
 
         # Height could be used to optimize performance?
         self.window_height = window.height
@@ -225,11 +225,11 @@ class AerojumpNeovim(object):
         # Sample positions
         self.current_pos = window.cursor
         self.og_pos = window.cursor
-        self.nvim.command('normal! H')
+        self.vim.command('normal! H')
         self.top_pos = window.cursor
 
         # Sample current filetype
-        resp = get_output_of_vim_cmd(self.nvim, 'set filetype?')
+        resp = get_output_of_vim_cmd(self.vim, 'set filetype?')
         self.ft = resp.split('=')[1]
 
         # Spawn the filter buffer
@@ -239,18 +239,18 @@ class AerojumpNeovim(object):
         self.__open_aerojump_buf()
 
         # Reference to the aerojump buffer
-        self.buf_ref = self.nvim.current.buffer
+        self.buf_ref = self.vim.current.buffer
 
         # Create lines
         self.aj = self.__create_aerojumper(settings, self.og_buf, self.og_pos, self.top_pos, self.window_height)
 
         # Update position
-        self.main_win = self.nvim.current.window
+        self.main_win = self.vim.current.window
 
         # Go back to the input buffer window
-        self.nvim.command('wincmd j')
-        self.nvim.current.window.height = 1
-        self.nvim.command("startinsert!")
+        self.vim.command('wincmd j')
+        self.vim.current.window.height = 1
+        self.vim.command("startinsert!")
 
         # Reset the filter string
         self.filter_string = ''
@@ -259,7 +259,7 @@ class AerojumpNeovim(object):
         # Create keymap
         self.__create_keymap()
 
-    @neovim.command("AerojumpShowLog", range='', nargs='*', sync=True)
+    #@neovim.command("AerojumpShowLog", range='', nargs='*', sync=True)
     def AerojumpShowLog(self, args, range):
         """ Show the aerojump log
 
@@ -269,15 +269,15 @@ class AerojumpNeovim(object):
         Returns:
             n/a
         """
-        self.nvim.command('e Aerojump_log')
-        self.nvim.command('setlocal buftype=nofile')
-        self.nvim.command('setlocal filetype=aerojump_log')
-        self.nvim.current.buffer.append(self.logstr)
+        self.vim.command('e Aerojump_log')
+        self.vim.command('setlocal buftype=nofile')
+        self.vim.command('setlocal filetype=aerojump_log')
+        self.vim.current.buffer.append(self.logstr)
         aj_log = self.aj.get_log()
-        self.nvim.current.buffer.append('== Aerojump log ==')
-        for l in aj_log: self.nvim.current.buffer.append(l)
+        self.vim.current.buffer.append('== Aerojump log ==')
+        for l in aj_log: self.vim.current.buffer.append(l)
 
-    @neovim.command("AerojumpUp", range='', nargs='*', sync=True)
+    #@neovim.command("AerojumpUp", range='', nargs='*', sync=True)
     def AerojumpUp(self, args, range):
         """ Go up one line of matches
 
@@ -292,10 +292,10 @@ class AerojumpNeovim(object):
         self.__update_highlights(self.aj.get_highlights())
         self.main_win.cursor = self.aj.get_cursor()
 
-        self.nvim.command('startinsert')
-        self.nvim.command('normal! $')
+        self.vim.command('startinsert')
+        self.vim.command('normal! $')
 
-    @neovim.command("AerojumpDown", range='', nargs='*', sync=True)
+    #@neovim.command("AerojumpDown", range='', nargs='*', sync=True)
     def AerojumpDown(self, args, range):
         """ Go down one line of matches
 
@@ -310,10 +310,10 @@ class AerojumpNeovim(object):
         self.__update_highlights(self.aj.get_highlights())
         self.main_win.cursor = self.aj.get_cursor()
 
-        self.nvim.command('startinsert')
-        self.nvim.command('normal! $')
+        self.vim.command('startinsert')
+        self.vim.command('normal! $')
 
-    @neovim.command("AerojumpSelNext", range='', nargs='*', sync=True)
+    #@neovim.command("AerojumpSelNext", range='', nargs='*', sync=True)
     def AerojumpSelNext(self, args, range):
         """ Select the next match
 
@@ -328,10 +328,10 @@ class AerojumpNeovim(object):
         self.__update_highlights(self.aj.get_highlights())
         self.main_win.cursor = self.aj.get_cursor()
 
-        self.nvim.command('startinsert')
-        self.nvim.command('normal! $')
+        self.vim.command('startinsert')
+        self.vim.command('normal! $')
 
-    @neovim.command("AerojumpSelPrev", range='', nargs='*', sync=True)
+    #@neovim.command("AerojumpSelPrev", range='', nargs='*', sync=True)
     def AerojumpSelPrev(self, args, range):
         """ Select the previous match
 
@@ -346,10 +346,10 @@ class AerojumpNeovim(object):
         self.__update_highlights(self.aj.get_highlights())
         self.main_win.cursor = self.aj.get_cursor()
 
-        self.nvim.command('startinsert')
-        self.nvim.command('normal! $')
+        self.vim.command('startinsert')
+        self.vim.command('normal! $')
 
-    @neovim.command("AerojumpSelect", range='', nargs='*', sync=True)
+    #@neovim.command("AerojumpSelect", range='', nargs='*', sync=True)
     def AerojumpSelect(self, args, range):
         """ Select the current match and move the cursor there
 
@@ -363,17 +363,17 @@ class AerojumpNeovim(object):
 
         # Sample position in aj window
         window = self.main_win
-        self.nvim.current.window = window
-        self.nvim.command('normal! H')
+        self.vim.current.window = window
+        self.vim.command('normal! H')
         top_pos = window.cursor
 
         self.AerojumpExit('', '')
 
-        self.nvim.current.window.cursor = top_pos
-        self.nvim.command('normal! zt')
-        self.nvim.current.window.cursor = cursor
+        self.vim.current.window.cursor = top_pos
+        self.vim.command('normal! zt')
+        self.vim.current.window.cursor = cursor
 
-    @neovim.command("AerojumpExit", range='', nargs='*', sync=True)
+    #@neovim.command("AerojumpExit", range='', nargs='*', sync=True)
     def AerojumpExit(self, args, range):
         """ Exit aerojump without moving the selection
 
@@ -383,12 +383,12 @@ class AerojumpNeovim(object):
         Returns:
             n/a
         """
-        self.nvim.command('stopinsert')
-        self.nvim.current.buffer = self.og_buf
-        self.nvim.command('bd %s' % self.aerojump_buf_num)
-        self.nvim.command('bd %s' % self.filt_buf_num)
+        self.vim.command('stopinsert')
+        self.vim.current.buffer = self.og_buf
+        self.vim.command('bd %s' % self.aerojump_buf_num)
+        self.vim.command('bd %s' % self.filt_buf_num)
         # Restore original position
-        self.nvim.current.window.cursor = self.top_pos
-        self.nvim.command('normal! zt')
-        self.nvim.current.window.cursor = self.og_pos
+        self.vim.current.window.cursor = self.top_pos
+        self.vim.command('normal! zt')
+        self.vim.current.window.cursor = self.og_pos
 

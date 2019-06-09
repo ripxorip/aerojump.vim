@@ -1,0 +1,3 @@
+[submodule "pythonx/aerojump"]
+	path = pythonx/aerojump
+	url = https://github.com/philip-karlsson/aerojump

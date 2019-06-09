@@ -1,4 +1,4 @@
-# aerojump.nvim
+# aerojump.vim
 
 
 ![Aerojump logo](img/logo.svg?sanitize=true)
@@ -29,7 +29,7 @@ Space mode but unmatched lines are left intact.
 
 ## Installation
 
-**Note:** aerojump.nvim requires Neovim(latest is recommended) with Python3 enabled.
+**Note:** aerojump.vim requires Neovim(latest is recommended) with Python3 enabled.
 See [requirements](#requirements) if you aren't sure whether you have this.
 
 ```vim
@@ -37,7 +37,7 @@ See [requirements](#requirements) if you aren't sure whether you have this.
 
 call plug#begin()
 
-Plug 'philip-karlsson/aerojump.nvim', { 'do': ':UpdateRemotePlugins' }
+Plug 'philip-karlsson/aerojump.vim', { 'do': ':UpdateRemotePlugins' }
 
 call plug#end()
 
@@ -71,7 +71,7 @@ or escape to return to where you were in the buffer before.
 | `C-space`             | Move cursor to the selected result
 
 ## Self-Promotion
-Like aerojump.nvim? Make sure to follow the repository and why not leave a star.
+Like aerojump.vim? Make sure to follow the repository and why not leave a star.
 
 ## Contributors
 - Philip Karlsson Gisslow
